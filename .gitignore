@@ -3,3 +3,15 @@
 ################################################################################
 
 /.vs/UE4_Plugins
+/Saved/Logs
+/Intermediate
+/Plugins/Developer/RiderLink/Intermediate
+/Plugins/Developer/RiderLink/Binaries
+/Plugins/StandaloneWidget/Intermediate
+/Plugins/StandaloneWidget/Binaries
+/Plugins/SunKey/Intermediate
+/Plugins/SunKey/Binaries
+/Plugins/UECharts/Intermediate
+/Plugins/UECharts/Binaries
+/Plugins/UnLua/Intermediate
+/Plugins/UnLua/Binaries

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="IntelliSense" type="Lua">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../Plugins/UnLua/Intermediate/IntelliSense.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
