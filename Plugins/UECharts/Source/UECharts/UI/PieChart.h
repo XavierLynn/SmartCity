@@ -24,6 +24,16 @@ struct FPieSeries
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PieStyle")
 	TArray<FColor> PieGradiantColors = {FColor(255, 255, 255)};
 };
+UENUM(BlueprintType)
+
+
+enum class EPieRiders : uint8
+{
+	Outer = 0 UMETA(DisplayName ="外环"),
+	Center = 1 UMETA(DisplayName = "环中心"),
+	Inner = 2 UMETA(DisplayName = "内环"),
+};
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPieActive, FPieSeries, PieSeries);
 
@@ -54,6 +64,9 @@ public:
 	TArray<FPieSeries> PieSeries;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PieConfig", Meta = (DisplayName = "环半径范围"))
+		EPieRiders PieRiders;
+
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PieConfig", meta = (DisplayName = "第一根标签线长"))
 	//float FirstLabelLengh;
 
@@ -80,15 +93,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "PieConfig")
 		TArray<FVector2D> GetAngleCenter();
 
-	//返回每个环的中心点
+	//返回每个环不同半径得点
 	UFUNCTION(BlueprintCallable, Category = "PieConfig")
-		TMap<int, FVector4> GetAllAngleCenterPoints();
+		TMap<int, FVector4> GetAllAngleCenterPoints(EPieRiders InPieRiders);
 
 	UFUNCTION(BlueprintCallable, Category = "PieConfig")
 		void ResetAngleValue();
 
-	UFUNCTION(BlueprintCallable, Category = "PieConfig")
-		TArray<FVector2D> FindPieElemCenterPoint();
+	//UFUNCTION(BlueprintCallable, Category = "PieConfig")
+	//	TArray<FVector2D> FindPieElemCenterPoint();
 
 	//绘制标签线
 	/*UFUNCTION(BlueprintCallable, Category = "PieConfig")

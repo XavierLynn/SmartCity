@@ -96,15 +96,31 @@ TArray<FVector2D> UPieChart::GetAngleCenter()
 	return AngleCenters;
 }
 
-TMap<int, FVector4> UPieChart::GetAllAngleCenterPoints()
+TMap<int, FVector4> UPieChart::GetAllAngleCenterPoints(EPieRiders InPieRiders)
 {
 	TMap<int, FVector4> AllAngleCenterPoints;
 	TArray<float> CurAngles;
 	for (int i = 0; i < PieIndex_Angle.Num(); i++)
 	{
 		float PieCenterDegrees;
-		
-		float MaxRadis = CurIndex==i?Width/2+OutRadisAdd:Width/2;
+		float MaxRadis = 0;
+		CircleWidth = CircleWidth > (Width / 2) ? Width / 2 : CircleWidth;
+		switch (InPieRiders)
+		{
+		case EPieRiders::Outer:
+			MaxRadis = CurIndex == i ? Width / 2 + OutRadisAdd : Width / 2;
+			break;
+
+		case EPieRiders::Center:
+			MaxRadis = (CurIndex == i ? Width / 2 - CircleWidth / 2 + OutRadisAdd : Width / 2 - CircleWidth / 2);
+			break;
+		case EPieRiders::Inner:
+			MaxRadis = (CurIndex == i ? Width / 2 - CircleWidth + OutRadisAdd : Width / 2 - CircleWidth / 2);
+			break;
+		default:
+			break;
+		}
+	
 		int X;
 		int Y;
 		FVector4 PieCenterPoint;
@@ -119,7 +135,6 @@ TMap<int, FVector4> UPieChart::GetAllAngleCenterPoints()
 		CurAngles.Add(PieCenterDegrees);
 		X = (0 <= int(PieCenterDegrees) % 360 && int(PieCenterDegrees) % 360 <=90 )|| (270 <= int(PieCenterDegrees) % 360 && int(PieCenterDegrees) % 360 < 360 )? 0 : 1;
 		Y = 0 <= int(PieCenterDegrees) % 360 && int(PieCenterDegrees) % 360 < 180 ? 1 : 0;
-		//Print_C(FString::FromInt(CurIndex));
 	
 		PieCenterPoint = FVector4(CircleCenter.X+MaxRadis * FMath::Cos(-FMath::DegreesToRadians(PieCenterDegrees)), CircleCenter.Y+MaxRadis * FMath::Sin(-FMath::DegreesToRadians(PieCenterDegrees)), X, Y);
 		
@@ -136,22 +151,18 @@ void UPieChart::ResetAngleValue()
 }
 
 
-
-
-
-
-TArray<FVector2D> UPieChart::FindPieElemCenterPoint()
-{
-	TArray<FVector2D> PieElemCenterPoint;
-	TMap<int, FVector4> AllAngleEdgePoint = GetAllAngleCenterPoints();
-	for (auto& Elem : AllAngleEdgePoint)
-	{
-		FVector2D CurCenterPoint = FVector2D(Elem.Value.X - CircleCenter.X,Elem.Value.Y-CircleCenter.Y);
-
-	}
-
-	return PieElemCenterPoint;
-}
+//TArray<FVector2D> UPieChart::FindPieElemCenterPoint()
+//{
+//	TArray<FVector2D> PieElemCenterPoint;
+//	TMap<int, FVector4> AllAngleEdgePoint = GetAllAngleCenterPoints();
+//	for (auto& Elem : AllAngleEdgePoint)
+//	{
+//		FVector2D CurCenterPoint = FVector2D(Elem.Value.X - CircleCenter.X,Elem.Value.Y-CircleCenter.Y);
+//
+//	}
+//
+//	return PieElemCenterPoint;
+//}
 
 void UPieChart::OnPopulateMesh(const FGeometry& AllottedGeometry, TArray<FSlateVertex>& vertex, TArray<SlateIndex>& index)
 {
