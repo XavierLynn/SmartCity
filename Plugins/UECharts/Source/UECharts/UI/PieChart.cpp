@@ -96,7 +96,7 @@ TArray<FVector2D> UPieChart::GetAngleCenter()
 	return AngleCenters;
 }
 
-TMap<int, FVector4> UPieChart::GetAllAngleCenterPoints(EPieRiders InPieRiders)
+TMap<int, FVector4> UPieChart::GetAllAngleCenterPoints(EPieRiders InPieRiders,float OtherRiders)
 {
 	TMap<int, FVector4> AllAngleCenterPoints;
 	TArray<float> CurAngles;
@@ -108,19 +108,21 @@ TMap<int, FVector4> UPieChart::GetAllAngleCenterPoints(EPieRiders InPieRiders)
 		switch (InPieRiders)
 		{
 		case EPieRiders::Outer:
-			MaxRadis = CurIndex == i ? Width / 2 + OutRadisAdd : Width / 2;
+			MaxRadis =  Width / 2;
 			break;
 
 		case EPieRiders::Center:
-			MaxRadis = (CurIndex == i ? Width / 2 - CircleWidth / 2 + OutRadisAdd : Width / 2 - CircleWidth / 2);
+			MaxRadis =  Width / 2 - CircleWidth / 2;
 			break;
 		case EPieRiders::Inner:
-			MaxRadis = (CurIndex == i ? Width / 2 - CircleWidth + OutRadisAdd : Width / 2 - CircleWidth / 2);
+			MaxRadis =  Width / 2 - CircleWidth;
+			break;
+		case EPieRiders::Other:
+			MaxRadis =  Width / 2+ OtherRiders;
 			break;
 		default:
 			break;
 		}
-	
 		int X;
 		int Y;
 		FVector4 PieCenterPoint;
@@ -143,13 +145,130 @@ TMap<int, FVector4> UPieChart::GetAllAngleCenterPoints(EPieRiders InPieRiders)
 	return AllAngleCenterPoints;
 }
 
+void UPieChart::CalculateLabelPositionY(TMap<int, float>& LeftLabelPosition, TMap<int, float>& RightLabelPosition,const TMap<int, FVector4> CurPieCenterPoints, int32 InLabelFontSize )
+{
+	for (auto Elem:CurPieCenterPoints)
+	{
+		if (Elem.Value.Z > 0)
+			LeftLabelPosition.Add(Elem.Key, Elem.Value.Y);
+		else
+			RightLabelPosition.Add(Elem.Key, Elem.Value.Y);
+	}
+	LeftLabelPosition.ValueSort([](float A, float B)
+		{
+			return  A < B;
+		});
+	RightLabelPosition.ValueSort([](float A, float B)
+		{
+			return  A < B;
+		});
+	TMap<int, float> CurLabelPosition;
+	float CurYValue = -10000000;
+	for (auto LeftElem : LeftLabelPosition)
+	{
+		if (CurYValue == -10000000|| LeftElem.Value - CurYValue > InLabelFontSize)
+		{
+			CurYValue = LeftElem.Value;
+			CurLabelPosition.Add(LeftElem.Key, CurYValue);
+		}
+		else
+		{
+			CurLabelPosition.Add(LeftElem.Key, CurYValue + InLabelFontSize);
+			CurYValue = CurYValue + InLabelFontSize;
+		}
+	}
+	LeftLabelPosition = CurLabelPosition;
+	CurLabelPosition.Empty();
+	CurYValue = -10000000;
+	for (auto RightElem : RightLabelPosition)
+	{
+		if (CurYValue == -10000000 || RightElem.Value - CurYValue > InLabelFontSize)
+		{
+			CurYValue = RightElem.Value;
+			CurLabelPosition.Add(RightElem.Key, CurYValue);
+		}
+		else
+		{
+			CurLabelPosition.Add(RightElem.Key, CurYValue + InLabelFontSize);
+
+			CurYValue = CurYValue + InLabelFontSize;
+		}
+	}
+	RightLabelPosition = CurLabelPosition;
+}
+
+void UPieChart::CalculateLabelPositionVector(TMap<int, FVector2D>& LeftLabelPosition, TMap<int, FVector2D>& RightLabelPosition, const TMap<int, FVector4> CurPieCenterPoints, int32 InLabelFontSize)
+{
+	for (auto Elem : CurPieCenterPoints)
+	{
+		if (Elem.Value.Z > 0)
+			LeftLabelPosition.Add(Elem.Key, FVector2D(Elem.Value.X,Elem.Value.Y));
+		else
+			RightLabelPosition.Add(Elem.Key, FVector2D(Elem.Value.X, Elem.Value.Y));
+	}
+	LeftLabelPosition.ValueSort([](FVector2D A, FVector2D B)
+		{
+			return  A.Y < B.Y;
+		});
+	RightLabelPosition.ValueSort([](FVector2D A, FVector2D B)
+		{
+			return A.Y < B.Y;
+		});
+	TMap<int, FVector2D> CurLabelPosition;
+	float CurYValue = -10000000;
+	for (auto LeftElem : LeftLabelPosition)
+	{
+		if (CurYValue == -10000000 || LeftElem.Value.Y - CurYValue > InLabelFontSize)
+		{
+			CurYValue = LeftElem.Value.Y;
+			CurLabelPosition.Add(LeftElem.Key, FVector2D(LeftElem.Value.X, CurYValue));
+		}
+		else
+		{
+			float CurDistance = FMath::Sqrt(FMath::Pow((LeftElem.Value.X - CircleCenter.X), 2) + FMath::Pow((CurYValue + InLabelFontSize - CircleCenter.Y), 2));
+			float CurXValue = LeftElem.Value.X;
+			if (CurDistance <= Width / 2)
+			{
+				CurXValue = FMath::Sqrt(FMath::Pow((Width / 2), 2) - FMath::Pow((CurYValue + InLabelFontSize - CircleCenter.Y), 2))+ CircleCenter.X - InLabelFontSize;
+			}
+			CurLabelPosition.Add(LeftElem.Key, FVector2D(CurXValue, CurYValue + InLabelFontSize));
+
+			CurYValue = CurYValue + InLabelFontSize;
+		}
+
+	}
+	LeftLabelPosition = CurLabelPosition;
+	CurLabelPosition.Empty();
+	CurYValue = -10000000;
+	for (auto RightElem : RightLabelPosition)
+	{
+		if (CurYValue == -10000000 || RightElem.Value.Y - CurYValue > InLabelFontSize)
+		{
+			CurYValue = RightElem.Value.Y;
+
+			CurLabelPosition.Add(RightElem.Key, FVector2D(RightElem.Value.X,CurYValue));
+		}
+		else
+		{
+			float CurDistance = FMath::Sqrt(FMath::Pow((RightElem.Value.X - CircleCenter.X), 2) + FMath::Pow((CurYValue + InLabelFontSize - CircleCenter.Y), 2));
+			float CurXValue = RightElem.Value.X;
+			if (CurDistance<=Width/2)
+			{ 
+				CurXValue = FMath::Sqrt(FMath::Pow((Width / 2), 2) - FMath::Pow((CurYValue + InLabelFontSize - CircleCenter.Y), 2))+ CircleCenter.X + InLabelFontSize;
+			}
+			CurLabelPosition.Add(RightElem.Key, FVector2D(CurXValue, CurYValue + InLabelFontSize));
+			CurYValue = CurYValue + InLabelFontSize;
+		}
+	}
+	RightLabelPosition = CurLabelPosition;
+}
+
 void UPieChart::ResetAngleValue()
 {
 	CurIndex = -1;
 	AngleValue = -1.f;
 	UnPieHover.Broadcast();
 }
-
 
 //TArray<FVector2D> UPieChart::FindPieElemCenterPoint()
 //{

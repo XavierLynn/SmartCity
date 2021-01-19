@@ -32,6 +32,7 @@ enum class EPieRiders : uint8
 	Outer = 0 UMETA(DisplayName ="外环"),
 	Center = 1 UMETA(DisplayName = "环中心"),
 	Inner = 2 UMETA(DisplayName = "内环"),
+	Other = 3 UMETA(DisplayName = "其他半径"),
 };
 
 
@@ -67,6 +68,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PieConfig", Meta = (DisplayName = "环半径范围"))
 		EPieRiders PieRiders;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PieConfig", Meta = (DisplayName = "标签字体大小"))
+		float LabelFontSize;
+
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PieConfig", meta = (DisplayName = "第一根标签线长"))
 	//float FirstLabelLengh;
 
@@ -95,7 +99,13 @@ public:
 
 	//返回每个环不同半径得点
 	UFUNCTION(BlueprintCallable, Category = "PieConfig")
-		TMap<int, FVector4> GetAllAngleCenterPoints(EPieRiders InPieRiders);
+		TMap<int, FVector4> GetAllAngleCenterPoints(EPieRiders InPieRiders, float OtherRiders = 0.0f);
+
+	UFUNCTION(BlueprintCallable, Category = "PieConfig")
+		void CalculateLabelPositionY(TMap<int, float>& LeftLabelPosition, TMap<int, float>& RightLabelPosition, const TMap<int, FVector4> CurPieCenterPoints, int32 InLabelFontSize);
+
+	UFUNCTION(BlueprintCallable, Category = "PieConfig")
+		void CalculateLabelPositionVector(TMap<int, FVector2D>& LeftLabelPosition, TMap<int, FVector2D>& RightLabelPosition, const TMap<int, FVector4> CurPieCenterPoints, int32 InLabelFontSize);
 
 	UFUNCTION(BlueprintCallable, Category = "PieConfig")
 		void ResetAngleValue();
