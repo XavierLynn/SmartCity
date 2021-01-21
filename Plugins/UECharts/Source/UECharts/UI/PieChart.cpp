@@ -197,7 +197,7 @@ void UPieChart::CalculateLabelPositionY(TMap<int, float>& LeftLabelPosition, TMa
 	RightLabelPosition = CurLabelPosition;
 }
 
-void UPieChart::CalculateLabelPositionVector(TMap<int, FVector2D>& LeftLabelPosition, TMap<int, FVector2D>& RightLabelPosition, const TMap<int, FVector4> CurPieCenterPoints, int32 InLabelFontSize)
+void UPieChart::CalculateLabelPositionVector(TMap<int, FVector2D>& LeftLabelPosition, TMap<int, FVector2D>& RightLabelPosition, const TMap<int, FVector4> CurPieCenterPoints, const int32 InLabelFontSize,const int32 LabelLineRadisOuterOffset)
 {
 	for (auto Elem : CurPieCenterPoints)
 	{
@@ -219,48 +219,45 @@ void UPieChart::CalculateLabelPositionVector(TMap<int, FVector2D>& LeftLabelPosi
 	for (auto LeftElem : LeftLabelPosition)
 	{
 		if (CurYValue == -10000000 || LeftElem.Value.Y - CurYValue > InLabelFontSize)
-		{
 			CurYValue = LeftElem.Value.Y;
-			CurLabelPosition.Add(LeftElem.Key, FVector2D(LeftElem.Value.X, CurYValue));
-		}
 		else
-		{
-			float CurDistance = FMath::Sqrt(FMath::Pow((LeftElem.Value.X - CircleCenter.X), 2) + FMath::Pow((CurYValue + InLabelFontSize - CircleCenter.Y), 2));
-			float CurXValue = LeftElem.Value.X;
-			if (CurDistance <= Width / 2)
-			{
-				CurXValue = FMath::Sqrt(FMath::Pow((Width / 2), 2) - FMath::Pow((CurYValue + InLabelFontSize - CircleCenter.Y), 2))+ CircleCenter.X - InLabelFontSize;
-			}
-			CurLabelPosition.Add(LeftElem.Key, FVector2D(CurXValue, CurYValue + InLabelFontSize));
-
 			CurYValue = CurYValue + InLabelFontSize;
+		float CurDistance = FMath::Sqrt(FMath::Pow((LeftElem.Value.X - CircleCenter.X), 2) + FMath::Pow((CurYValue - CircleCenter.Y), 2));
+		bool LabelSign = (LeftElem.Value.X - CircleCenter.X > 0) ? true : false;
+		float CurXValue = LeftElem.Value.X;
+		if (CurDistance <= Width / 2 + LabelLineRadisOuterOffset)
+		{
+			CurXValue = (FMath::Sqrt(FMath::Pow((Width / 2), 2) - FMath::Pow((CurYValue - CircleCenter.Y), 2))) * (LabelSign ? 1 : -1) + CircleCenter.X - LabelLineRadisOuterOffset;
 		}
-
+		CurLabelPosition.Add(LeftElem.Key, FVector2D(CurXValue, CurYValue));
 	}
 	LeftLabelPosition = CurLabelPosition;
 	CurLabelPosition.Empty();
 	CurYValue = -10000000;
+
 	for (auto RightElem : RightLabelPosition)
 	{
 		if (CurYValue == -10000000 || RightElem.Value.Y - CurYValue > InLabelFontSize)
-		{
 			CurYValue = RightElem.Value.Y;
-
-			CurLabelPosition.Add(RightElem.Key, FVector2D(RightElem.Value.X,CurYValue));
-		}
 		else
-		{
-			float CurDistance = FMath::Sqrt(FMath::Pow((RightElem.Value.X - CircleCenter.X), 2) + FMath::Pow((CurYValue + InLabelFontSize - CircleCenter.Y), 2));
-			float CurXValue = RightElem.Value.X;
-			if (CurDistance<=Width/2)
-			{ 
-				CurXValue = FMath::Sqrt(FMath::Pow((Width / 2), 2) - FMath::Pow((CurYValue + InLabelFontSize - CircleCenter.Y), 2))+ CircleCenter.X + InLabelFontSize;
-			}
-			CurLabelPosition.Add(RightElem.Key, FVector2D(CurXValue, CurYValue + InLabelFontSize));
 			CurYValue = CurYValue + InLabelFontSize;
+		float CurDistance = FMath::Sqrt(FMath::Pow((RightElem.Value.X - CircleCenter.X), 2) + FMath::Pow((CurYValue - CircleCenter.Y), 2));
+		bool LabelSign = (RightElem.Value.X - CircleCenter.X > 0) ? true : false;
+		float CurXValue = RightElem.Value.X;
+		if (CurDistance <= Width / 2 + LabelLineRadisOuterOffset)
+		{
+			CurXValue = (FMath::Sqrt(FMath::Pow((Width / 2), 2) - FMath::Pow((CurYValue - CircleCenter.Y), 2))) * (LabelSign ? 1 : -1) + CircleCenter.X + LabelLineRadisOuterOffset;
 		}
+		CurLabelPosition.Add(RightElem.Key, FVector2D(CurXValue, CurYValue));
 	}
 	RightLabelPosition = CurLabelPosition;
+}
+
+void UPieChart::CalculateLabelOffsetVector(const float LabelOffset, float& RightLabelOffset, float& LeftLabelOffset)
+{
+
+	RightLabelOffset = CircleCenter.X + Width / 2 + LabelOffset;
+	LeftLabelOffset = CircleCenter.X - Width / 2 - LabelOffset;
 }
 
 void UPieChart::ResetAngleValue()
@@ -422,6 +419,8 @@ void UPieChart::DataToRadian(TArray<FPieSeries>& InPieData)
 	float AngleCenter = 0;
 	for (int i = 0; i < InPieData.Num(); i++)
 	{
+		if(InPieData[i].Value == 0)
+			continue;
 		SumPieData += (InPieData[i].Value + PieInternal);
 		
 	}
@@ -432,15 +431,6 @@ void UPieChart::DataToRadian(TArray<FPieSeries>& InPieData)
 	}
 	//return PieIndex_Angle;
 }
-
-
-
-
-
-
-
-
-
 
 //void UPieChart::DrawLabelLine(const TMap<int, FVector4> CurAngleCenterPoint, float InFirstLableLengh, float InScendLabelLengh, float InLabelWith)
 //{

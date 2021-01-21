@@ -105,8 +105,11 @@ public:
 		void CalculateLabelPositionY(TMap<int, float>& LeftLabelPosition, TMap<int, float>& RightLabelPosition, const TMap<int, FVector4> CurPieCenterPoints, int32 InLabelFontSize);
 
 	UFUNCTION(BlueprintCallable, Category = "PieConfig")
-		void CalculateLabelPositionVector(TMap<int, FVector2D>& LeftLabelPosition, TMap<int, FVector2D>& RightLabelPosition, const TMap<int, FVector4> CurPieCenterPoints, int32 InLabelFontSize);
+		void CalculateLabelPositionVector(TMap<int, FVector2D>& LeftLabelPosition, TMap<int, FVector2D>& RightLabelPosition, const TMap<int, FVector4> CurPieCenterPoints,const int32 InLabelFontSize, const int32 LabelLineRadisOuterOffset);
 
+	UFUNCTION(BlueprintCallable, Category = "PieConfig")
+		void CalculateLabelOffsetVector(const float LabelOffset,float& RightLabelOffset,float& LeftLabelOffset);
+	
 	UFUNCTION(BlueprintCallable, Category = "PieConfig")
 		void ResetAngleValue();
 
