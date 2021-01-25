@@ -1,0 +1,29 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.1",
+	"FriendlyName": "Electronic Nodes",
+	"Description": "Improve the wire style of blueprints and materials editors.",
+	"Category": "Editor",
+	"CreatedBy": "Hugo Attal",
+	"CreatedByURL": "https://twitter.com/HugoAttal",
+	"DocsURL": "",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/5cb2a394d0c04e73891762be4cbd7216",
+	"SupportURL": "https://forums.unrealengine.com/unreal-engine/marketplace/1647213-electronic-nodes-wiring-style-for-blueprints-and-materials-editors",
+	"EngineVersion": "4.25.0",
+	"CanContainContent": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "ElectronicNodes",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32",
+				"Mac",
+				"Linux"
+			]
+		}
+	]
+}

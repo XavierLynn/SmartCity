@@ -17,3 +17,5 @@
 /Plugins/UnLua/Binaries
 /Binaries/Win64
 /Saved
+/Plugins/ElectronicNodes/Binaries/Win64
+/Plugins/ElectronicNodes/Intermediate/Build/Win64/UE4Editor

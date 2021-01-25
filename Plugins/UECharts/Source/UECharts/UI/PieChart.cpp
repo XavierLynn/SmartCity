@@ -98,10 +98,13 @@ TArray<FVector2D> UPieChart::GetAngleCenter()
 
 TMap<int, FVector4> UPieChart::GetAllAngleCenterPoints(EPieRiders InPieRiders,float OtherRiders)
 {
+
 	TMap<int, FVector4> AllAngleCenterPoints;
 	TArray<float> CurAngles;
 	for (int i = 0; i < PieIndex_Angle.Num(); i++)
 	{
+		if (PieIndex_Angle.Find(i)==0)
+			continue;
 		float PieCenterDegrees;
 		float MaxRadis = 0;
 		CircleWidth = CircleWidth > (Width / 2) ? Width / 2 : CircleWidth;
@@ -311,16 +314,20 @@ void UPieChart::OnPopulateMesh(const FGeometry& AllottedGeometry, TArray<FSlateV
 	for (int i = 0;i< PieSeries.Num();i++)
 	{
 		float* CurAngle = PieIndex_Angle.Find(PieSeries[i].index);
+		if (PieSeries[i].Value == 0)
+			continue;
 		if (i == 0)
 		{
+			//float CurPieInternal = PieSeries[i].Value == 0 ? 0 : PieInternal;
 			OutRadis = (0 <= AngleValue && AngleValue < *CurAngle - PieInternal && AngleValue != -1)||CurIndex==i ? outer + OutRadisAdd : outer;
 			GradiantColors = PieSeries[i].PieGradiantColors;
 			DrawCircle(OutRadis, inner, InternalAngle, InternalAngle + *CurAngle - PieInternal, 0, 0, false, false);
 		}
 		else
 		{
+			//float CurPieInternal = PieSeries[i].Value == 0 ? 0 : PieInternal;
 			float *PerAngle = PieIndex_Angle.Find(PieSeries[i-1].index);
-			OutRadis = (*PerAngle <= AngleValue && AngleValue < *CurAngle - PieInternal  && AngleValue != -1)||CurIndex == i ? outer + OutRadisAdd : outer;
+			OutRadis = (*PerAngle <= AngleValue && AngleValue < *CurAngle - PieInternal && AngleValue != -1)||CurIndex == i ? outer + OutRadisAdd : outer;
 			GradiantColors = PieSeries[i].PieGradiantColors;
 			DrawCircle(OutRadis, inner, *PerAngle+ InternalAngle, *CurAngle - PieInternal + InternalAngle, 0, 0, false, false);
 		}
@@ -419,14 +426,16 @@ void UPieChart::DataToRadian(TArray<FPieSeries>& InPieData)
 	float AngleCenter = 0;
 	for (int i = 0; i < InPieData.Num(); i++)
 	{
-		if(InPieData[i].Value == 0)
-			continue;
-		SumPieData += (InPieData[i].Value + PieInternal);
+		float CurPieInternal = InPieData[i].Value == 0 ? 0 : PieInternal;
+		SumPieData += (InPieData[i].Value + CurPieInternal);
 		
 	}
 	for (int i = 0; i < InPieData.Num(); i++)
 	{
-		CurAngle += (InPieData[i].Value + PieInternal) * 360 / SumPieData;
+		float CurPieInternal = InPieData[i].Value == 0?0:PieInternal;
+	
+
+		CurAngle += (InPieData[i].Value + CurPieInternal) * 360 / SumPieData;
 		PieIndex_Angle.Add(InPieData[i].index, CurAngle);
 	}
 	//return PieIndex_Angle;
