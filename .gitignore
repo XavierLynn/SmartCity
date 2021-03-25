@@ -19,3 +19,17 @@
 /Saved
 /Plugins/ElectronicNodes/Binaries/Win64
 /Plugins/ElectronicNodes/Intermediate/Build/Win64/UE4Editor
+/Plugins/HeatMap/Binaries/Win64
+/Plugins/HeatMap/Intermediate/Build/Win64/UE4Editor
+/Plugins/HttpLibrary/Binaries/Win64
+/Plugins/HttpLibrary/Intermediate/Build
+/Plugins/JsonLibrary/Intermediate/Build
+/Plugins/JsonLibrary/Binaries/Win64
+/Plugins/NodeGraphAssistant/Intermediate/Build
+/Plugins/NodeGraphAssistant/Binaries
+/Plugins/TextureRuntimeImporter/Intermediate/Build/Win64/UE4Editor
+/Plugins/TextureRuntimeImporter/Binaries/Win64
+/Plugins/WebCamera/Intermediate/Build
+/Plugins/WebCamera/Binaries
+/Plugins/WebUI/Intermediate/Build
+/Plugins/WebUI/Binaries/Win64

@@ -1,0 +1,47 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "TextureRuntimeImporter",
+	"Description": "Runtime Import Texture ",
+	"Category": "Other",
+	"CreatedBy": "byTangs",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c07c61808eaa4425b602ae901f742be6",
+	"SupportURL": "",
+	"EngineVersion": "4.25.0",
+	"CanContainContent": false,
+	"Installed": true,
+	"SupportedTargetPlatforms": [
+		"Win64",
+		"Android",
+		"Win32",
+		"Mac",
+		"IOS",
+		"Linux"
+	],
+	"Modules": [
+		{
+			"Name": "TextureRuntimeImporter",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Android",
+				"Win32",
+				"Mac",
+				"IOS",
+				"Linux"
+			]
+		},
+		{
+			"Name": "FileDialog",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		}
+	]
+}

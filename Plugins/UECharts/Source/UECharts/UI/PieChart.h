@@ -113,6 +113,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "PieConfig")
 		void ResetAngleValue();
 
+
+
+	
+
 	//UFUNCTION(BlueprintCallable, Category = "PieConfig")
 	//	TArray<FVector2D> FindPieElemCenterPoint();
 
@@ -131,6 +135,7 @@ private:
 	                bool innerAnti);
 
 private:
+
 	void DataToRadian(TArray<FPieSeries>& InPieData);
 
 
@@ -143,6 +148,11 @@ private:
 	TMap<int32, float> PieIndex_Angle;
 	TArray<FVector2D> AngleCenters;
 	float InternalAngle;
+
+	//饼图数据总和
+	float SumPieData;
+	//饼图实际间距
+	float CurPieInter;
 
 	float EndAngle = 360.f;
 

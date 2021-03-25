@@ -85,9 +85,12 @@ public:
 		
 		MeshUI->DrawEffects |= ESlateDrawEffect::NoPixelSnapping;
 		//开始绘画
+	/*	FSlateDrawElement::MakeCustomVerts(OutDrawElements, LayerId, handle, MeshUI->VertexData,
+			MeshUI->IndexData, RenderData[0].PerInstanceBuffer.Get(),
+			0, RenderData[0].PerInstanceBuffer->GetNumInstances(),MeshUI->DrawEffects);*/
 		FSlateDrawElement::MakeCustomVerts(OutDrawElements, LayerId, handle, MeshUI->VertexData,
 			MeshUI->IndexData, RenderData[0].PerInstanceBuffer.Get(),
-			0, RenderData[0].PerInstanceBuffer->GetNumInstances(),MeshUI->DrawEffects);
+			0, RenderData[0].PerInstanceBuffer->GetNumInstances());
 		return LayerId;
 		
 	};
@@ -112,12 +115,17 @@ UChartBaseWidget::UChartBaseWidget()
 void UChartBaseWidget::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
-	BaseMesh->SetR();
+	if (BaseMesh.IsValid())
+	{
+		BaseMesh->SetR();
+	}
+	
 }
 
 void UChartBaseWidget::ReleaseSlateResources(bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);
+	BaseMesh.Reset();
 }
 
 TSharedRef<SWidget> UChartBaseWidget::RebuildWidget()
