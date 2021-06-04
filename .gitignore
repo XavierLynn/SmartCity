@@ -34,3 +34,11 @@
 /Plugins/WebUI/Intermediate/Build
 /Plugins/WebUI/Binaries/Win64
 /Plugins/VlcMedia-master/Build
+/Plugins/EMGISBuilder/Intermediate/Build/Win64/UE4Editor/Development/EMGISBuilder
+/Plugins/EMGISBuilder/Binaries/Win64
+/Plugins/JsonUE/Intermediate/Build/Win64/UE4Editor
+/Plugins/JsonUE/Binaries/Win64
+/Plugins/MESProduct/Intermediate/Build/Win64/UE4Editor
+/Plugins/MESProduct/Binaries/Win64
+/Plugins/PlateMap/Intermediate/Build/Win64/UE4Editor
+/Plugins/PlateMap/Binaries/Win64
