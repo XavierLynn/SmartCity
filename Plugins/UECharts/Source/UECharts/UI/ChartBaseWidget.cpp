@@ -98,7 +98,210 @@ public:
 	UChartBaseWidget* MeshUI;
 };
 
+void UChartBaseWidget::GetRectPointLine(FSlateVertex verts[], FVector2D p1, FVector2D p2, float lineThickness, TArray<FSlateVertex> TempPoints, int pos, float AAlineThickness)
+{
 
+	float left, right;
+	if (p2.X == p1.X)  //垂直方向
+	{
+		int Add = (p2.Y >= p1.Y) ? 1 : -1;
+		if (pos == 1)
+		{
+			left = 2 * lineThickness * Add;
+			right = lineThickness * Add;
+		}
+		else if (pos == 2)
+		{
+			left = -lineThickness * Add;
+			right = -2 * lineThickness * Add;
+		}
+		else
+		{
+			left = 0;
+			right = 0;
+		}
+		verts[0].Position = FVector2D(p1.X - lineThickness * Add + left, p1.Y);
+		verts[1].Position = FVector2D(p1.X + lineThickness * Add + right, p1.Y);
+		verts[2].Position = FVector2D(p2.X + lineThickness * Add + right, p2.Y);
+		verts[3].Position = FVector2D(p2.X - lineThickness * Add + left, p2.Y);
+		return;
+	}
+
+	if (p2.Y == p1.Y)//水平方向
+	{
+		int Add = (p2.X >= p1.X) ? 1 : -1;
+		if (pos == 1)
+		{
+			left = -AAlineThickness * Add;
+			right = -2 * lineThickness;
+		}
+		else if (pos == 2)
+		{
+			left = 2 * Add * lineThickness;
+			right = AAlineThickness * Add;
+		}
+		else
+		{
+			left = 0;
+			right = 0;
+		}
+		verts[0].Position = FVector2D(p1.X, p1.Y - lineThickness * Add + left);
+		verts[1].Position = FVector2D(p1.X, p1.Y + lineThickness * Add + right);
+		verts[2].Position = FVector2D(p2.X, p2.Y + lineThickness * Add + right);
+		verts[3].Position = FVector2D(p2.X, p2.Y - lineThickness * Add + left);
+	}
+
+	//通过斜率求线段
+	float k = (p2.Y - p1.Y) / (p2.X - p1.X);
+	float A = FMath::Atan(k);
+	float ofssetX = lineThickness * FMath::Sin(A);
+	float offsetY = lineThickness;
+	if (k != 0)
+	{
+		offsetY = ofssetX / k;
+	}
+
+	if (pos == 1)
+	{
+		if (TempPoints.Num() != 0) {
+			verts[0].Position = FVector2D(TempPoints[1].Position.X, TempPoints[1].Position.Y);
+			verts[1].Position = FVector2D(TempPoints[0].Position.X, TempPoints[0].Position.Y);
+			verts[2].Position = FVector2D(p2.X - ofssetX + 2 * ofssetX, p2.Y + offsetY - 2 * offsetY);
+			verts[3].Position = FVector2D(p2.X + ofssetX + AAlineThickness * ofssetX / lineThickness, p2.Y - offsetY - AAlineThickness * offsetY / lineThickness);
+		}
+		else
+		{
+			verts[0].Position = FVector2D(p1.X + ofssetX + AAlineThickness * ofssetX / lineThickness, p1.Y - offsetY - AAlineThickness * offsetY / lineThickness);
+			verts[1].Position = FVector2D(p1.X - ofssetX + 2 * ofssetX, p1.Y + offsetY - 2 * offsetY);
+			verts[2].Position = FVector2D(p2.X - ofssetX + 2 * ofssetX, p2.Y + offsetY - 2 * offsetY);
+			verts[3].Position = FVector2D(p2.X + ofssetX + AAlineThickness * ofssetX / lineThickness, p2.Y - offsetY - AAlineThickness * offsetY / lineThickness);
+		}
+	}
+	else if (pos == 2)
+	{
+		if (TempPoints.Num() != 0) {
+			verts[0].Position = FVector2D(TempPoints[1].Position.X, TempPoints[1].Position.Y);
+			verts[1].Position = FVector2D(TempPoints[0].Position.X, TempPoints[0].Position.Y);
+			//verts[2].Position = FVector2D(p2.X - ofssetX * 0.25 - ofssetX, p2.Y + offsetY + AAlineThickness * offsetY / lineThickness);
+			verts[2].Position = FVector2D(p2.X - ofssetX - AAlineThickness * ofssetX / lineThickness, p2.Y + offsetY + AAlineThickness * offsetY / lineThickness);
+			verts[3].Position = FVector2D(p2.X + ofssetX - 2 * ofssetX, p2.Y - offsetY + 2 * offsetY);
+		}
+		else
+		{
+			verts[0].Position = FVector2D(p1.X + ofssetX - 2 * ofssetX, p1.Y - offsetY + 2 * offsetY);
+			verts[1].Position = FVector2D(p1.X - ofssetX - AAlineThickness * ofssetX / lineThickness, p1.Y + offsetY + AAlineThickness * offsetY / lineThickness);
+			verts[2].Position = FVector2D(p2.X - ofssetX - AAlineThickness * ofssetX / lineThickness, p2.Y + offsetY + AAlineThickness * offsetY / lineThickness);
+			verts[3].Position = FVector2D(p2.X + ofssetX - 2 * ofssetX, p2.Y - offsetY + 2 * offsetY);
+		}
+	}
+	else
+	{
+		if (TempPoints.Num() != 0) {
+			verts[0].Position = FVector2D(TempPoints[1].Position.X, TempPoints[1].Position.Y);
+			verts[1].Position = FVector2D(TempPoints[0].Position.X, TempPoints[0].Position.Y);
+			verts[2].Position = FVector2D(p2.X - ofssetX, p2.Y + offsetY);
+			verts[3].Position = FVector2D(p2.X + ofssetX, p2.Y - offsetY);
+		}
+		else
+		{
+			verts[0].Position = FVector2D(p1.X + ofssetX, p1.Y - offsetY);
+			verts[1].Position = FVector2D(p1.X - ofssetX, p1.Y + offsetY);
+			verts[2].Position = FVector2D(p2.X - ofssetX, p2.Y + offsetY);
+			verts[3].Position = FVector2D(p2.X + ofssetX, p2.Y - offsetY);
+		}
+
+		//verts[0].Position = FVector2D(p1.X + ofssetX, p1.Y - offsetY);
+		//verts[1].Position = FVector2D(p1.X - ofssetX, p1.Y + offsetY);
+		//verts[2].Position = FVector2D(p2.X - ofssetX, p2.Y + offsetY);
+		//verts[3].Position = FVector2D(p2.X + ofssetX, p2.Y - offsetY);
+	}
+}
+
+void UChartBaseWidget::GetRectPointLineByZhang(FSlateVertex verts[], FVector2D p1, FVector2D p2, float lineThickness, TArray<FSlateVertex> TempPoints, int pos, float AAlineThickness)
+{
+
+	float left, right;
+	if (p2.X == p1.X)  //垂直方向
+	{
+		int Add = (p2.Y >= p1.Y) ? 1 : -1;
+		if (pos == 1)
+		{
+			left = 2 * lineThickness * Add;
+			right = lineThickness * Add;
+		}
+		else if (pos == 2)
+		{
+			left = -lineThickness * Add;
+			right = -2 * lineThickness * Add;
+		}
+		else
+		{
+			left = 0;
+			right = 0;
+		}
+		verts[0].Position = FVector2D(p1.X - lineThickness * Add + left, p1.Y);
+		verts[1].Position = FVector2D(p1.X + lineThickness * Add + right, p1.Y);
+		verts[2].Position = FVector2D(p2.X + lineThickness * Add + right, p2.Y);
+		verts[3].Position = FVector2D(p2.X - lineThickness * Add + left, p2.Y);
+		return;
+	}
+
+	if (p2.Y == p1.Y)//水平方向
+	{
+		int Add = (p2.X >= p1.X) ? 1 : -1;
+		if (pos == 1)
+		{
+			left = -AAlineThickness * Add;
+			right = -2 * lineThickness;
+		}
+		else if (pos == 2)
+		{
+			left = 2 * Add * lineThickness;
+			right = AAlineThickness * Add;
+		}
+		else
+		{
+			left = 0;
+			right = 0;
+		}
+		verts[0].Position = FVector2D(p1.X, p1.Y - lineThickness * Add + left);
+		verts[1].Position = FVector2D(p1.X, p1.Y + lineThickness * Add + right);
+		verts[2].Position = FVector2D(p2.X, p2.Y + lineThickness * Add + right);
+		verts[3].Position = FVector2D(p2.X, p2.Y - lineThickness * Add + left);
+	}
+
+	//通过斜率求线段
+	float k = (p2.Y - p1.Y) / (p2.X - p1.X);
+	float A = FMath::Atan(k);
+	float ofssetX = lineThickness * FMath::Sin(A);
+	float offsetY = lineThickness;
+	if (k != 0)
+	{
+		offsetY = ofssetX / k;
+	}
+	if (pos == 1)
+	{
+		verts[0].Position = FVector2D(p1.X + ofssetX + AAlineThickness * ofssetX / lineThickness, p1.Y - offsetY - AAlineThickness * offsetY / lineThickness);
+		verts[1].Position = FVector2D(p1.X - ofssetX + 2 * ofssetX, p1.Y + offsetY - 2 * offsetY);
+		verts[2].Position = FVector2D(p2.X - ofssetX + 2 * ofssetX, p2.Y + offsetY - 2 * offsetY);
+		verts[3].Position = FVector2D(p2.X + ofssetX + AAlineThickness * ofssetX / lineThickness, p2.Y - offsetY - AAlineThickness * offsetY / lineThickness);
+	}
+	else if (pos == 2)
+	{
+		verts[0].Position = FVector2D(p1.X + ofssetX - 2 * ofssetX, p1.Y - offsetY + 2 * offsetY);
+		verts[1].Position = FVector2D(p1.X - ofssetX - AAlineThickness * ofssetX / lineThickness, p1.Y + offsetY + AAlineThickness * offsetY / lineThickness);
+		verts[2].Position = FVector2D(p2.X - ofssetX - AAlineThickness * ofssetX / lineThickness, p2.Y + offsetY + AAlineThickness * offsetY / lineThickness);
+		verts[3].Position = FVector2D(p2.X + ofssetX - 2 * ofssetX, p2.Y - offsetY + 2 * offsetY);
+	}
+	else
+	{
+		verts[0].Position = FVector2D(p1.X + ofssetX, p1.Y - offsetY);
+		verts[1].Position = FVector2D(p1.X - ofssetX, p1.Y + offsetY);
+		verts[2].Position = FVector2D(p2.X - ofssetX, p2.Y + offsetY);
+		verts[3].Position = FVector2D(p2.X + ofssetX, p2.Y - offsetY);
+	}
+
+}
 //MeshUIBase 赋值 基础的材质
 UChartBaseWidget::UChartBaseWidget()
 {

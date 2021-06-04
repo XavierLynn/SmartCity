@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "LineChart.h"
@@ -18,6 +18,7 @@ void ULineChart::OnPopulateMesh(const FGeometry& AllottedGeometry, TArray<FSlate
 	float stepW = Width / (Data.Num() - 1);
 	AreaTop = FMath::Clamp(AreaTop, 0.f, 1.f);
 	AreaBottom = FMath::Clamp(AreaBottom, 0.f, 1.f);
+	AALineWidth = FMath::Clamp(AALineWidth, 0.f, 5.f);
 	//Width
 	
 	TArray<FSlateVertex> Points;
@@ -40,7 +41,7 @@ void ULineChart::OnPopulateMesh(const FGeometry& AllottedGeometry, TArray<FSlate
 
 	if (IsCurve)
 	{
-		Points = PointList(Points, 20, FirstY, FirstY - Height);
+		Points = PointList(Points, 100, FirstY, FirstY - Height);
 	}
 	if (IsBroken)
 	{
@@ -55,18 +56,32 @@ void ULineChart::OnPopulateMesh(const FGeometry& AllottedGeometry, TArray<FSlate
 		}
 		Points = NewPoint;
 	}
-	FSlateVertex FirstPos1;
+
+	if (IsCurve && !IsBroken)
+	{
+		ThreeLines(stepW, 0, vertex, index, Points, 1);  
+		ThreeLines(stepW, 0, vertex, index, Points, 2);  
+		ThreeLines(stepW, 0, vertex, index, Points, 3);  
+	}
+	else
+	{
+		ZhangThreeLines(stepW, 0, vertex, index, Points, 1);
+		ZhangThreeLines(stepW, 0, vertex, index, Points, 2);
+		ZhangThreeLines(stepW, 0, vertex, index, Points, 3);
+
+	}
+	/*FSlateVertex FirstPos1;
 	FSlateVertex FirstPos2;
 	FSlateVertex Last1;
 	FSlateVertex Last2;
-	
+
 	for (int i = 0; i < Points.Num() - 1; i++)
 	{
 		if (IsBroken && (i % 2 == 1))continue;
 		FSlateVertex LinePoints[4];
 		Points[i].Color = UseLineColor ? LineColor : GetColorByPos(Points[i].Position.X, Points[i].Position.Y);
 		Points[i].Color.A = 255;
-		
+
 		GetRectPoint(LinePoints, Points[i].Position, Points[i + 1].Position, LineWidth);
 		LinePoints[0].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[0].Position.X, LinePoints[0].Position.Y);
 		LinePoints[1].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[1].Position.X, LinePoints[1].Position.Y);
@@ -103,7 +118,7 @@ void ULineChart::OnPopulateMesh(const FGeometry& AllottedGeometry, TArray<FSlate
 			Last1 = LinePoints[2];
 			Last2 = LinePoints[3];
 		}
-	}
+	}*/
 
 	if (IsArea)
 	{
@@ -129,7 +144,182 @@ void ULineChart::OnPopulateMesh(const FGeometry& AllottedGeometry, TArray<FSlate
 	CurDarwEffect |= ESlateDrawEffect::NoPixelSnapping;
 	SetDrawEffect(CurDarwEffect);
 }
+void ULineChart::ThreeLines(float x, float y, TArray<FSlateVertex>& vertex, TArray<SlateIndex>& index, TArray<FSlateVertex> Points, int pos)
+{
 
+	FSlateVertex FirstPos1;
+	FSlateVertex FirstPos2;
+	FSlateVertex Last1;
+	FSlateVertex Last2;
+	TArray<FSlateVertex> TempPoints;
+	for (int i = 0; i < Points.Num() - 1; i++)
+	{
+		if (IsBroken && (i % 2 == 1))continue;
+		FSlateVertex LinePoints[4];
+		Points[i].Color = UseLineColor ? LineColor : GetColorByPos(Points[i].Position.X, Points[i].Position.Y);
+		Points[i].Color.A = 255;
+		if (pos == 1) {
+			GetRectPointLine(LinePoints, Points[i].Position, Points[i + 1].Position, LineWidth, TempPoints, pos, AALineWidth);
+			TempPoints.Empty();
+			TempPoints.Add((LinePoints[2]));
+			TempPoints.Add((LinePoints[3]));
+			LinePoints[0].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[0].Position.X, LinePoints[0].Position.Y);
+			LinePoints[1].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[1].Position.X, LinePoints[1].Position.Y);
+			LinePoints[2].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[2].Position.X, LinePoints[2].Position.Y);
+			LinePoints[3].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[3].Position.X, LinePoints[3].Position.Y);
+			LinePoints[0].Color.A = 0;
+			LinePoints[1].Color.A = 255;
+			LinePoints[2].Color.A = 255;
+			LinePoints[3].Color.A = 0;
+		}
+		else if (pos == 2)
+		{
+			GetRectPointLine(LinePoints, Points[i].Position, Points[i + 1].Position, LineWidth, TempPoints, pos, AALineWidth);
+			TempPoints.Empty();
+			TempPoints.Add((LinePoints[2]));
+			TempPoints.Add((LinePoints[3]));
+			LinePoints[0].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[0].Position.X, LinePoints[0].Position.Y);
+			LinePoints[1].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[1].Position.X, LinePoints[1].Position.Y);
+			LinePoints[2].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[2].Position.X, LinePoints[2].Position.Y);
+			LinePoints[3].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[3].Position.X, LinePoints[3].Position.Y);
+			LinePoints[0].Color.A = 255;
+			LinePoints[1].Color.A = 0;
+			LinePoints[2].Color.A = 0;
+			LinePoints[3].Color.A = 255;
+		}
+		else
+		{
+			GetRectPointLine(LinePoints, Points[i].Position, Points[i + 1].Position, LineWidth, TempPoints, pos, 0);
+			//TempPoints.Empty();
+			//TempPoints.Add((LinePoints[2]));
+			//TempPoints.Add((LinePoints[3]));
+			LinePoints[0].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[0].Position.X, LinePoints[0].Position.Y);
+			LinePoints[1].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[1].Position.X, LinePoints[1].Position.Y);
+			LinePoints[2].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[2].Position.X, LinePoints[2].Position.Y);
+			LinePoints[3].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[3].Position.X, LinePoints[3].Position.Y);
+			//LinePoints[0].Color.A = 255;
+			//LinePoints[1].Color.A = 255;
+			//LinePoints[2].Color.A = 255;
+			//LinePoints[3].Color.A = 255;
+		}
+		AddUIVertexQuad(LinePoints);
+		if (IsBroken)continue;
+		if (i == 0)
+		{
+			FirstPos1 = LinePoints[0];
+			FirstPos2 = LinePoints[1];
+			Last1 = LinePoints[2];
+			Last2 = LinePoints[3];
+		}
+		else
+		{
+			int count = VertexData.Num();
+			VertexData.Add(Last2);
+			VertexData.Add(Points[i]);
+			VertexData.Add(LinePoints[0]);
+			VertexData.Add(Last1);
+			VertexData.Add(Points[i]);
+			VertexData.Add(LinePoints[1]);
+			index.Add(count);
+			index.Add(count + 1);
+			index.Add(count + 2);
+			index.Add(count + 3);
+			index.Add(count + 4);
+			index.Add(count + 5);
+			Last1 = LinePoints[2];
+			Last2 = LinePoints[3];
+		}
+	}
+
+}
+
+void ULineChart::ZhangThreeLines(float x, float y, TArray<FSlateVertex>& vertex, TArray<SlateIndex>& index, TArray<FSlateVertex> Points, int pos)
+{
+
+	FSlateVertex FirstPos1;
+	FSlateVertex FirstPos2;
+	FSlateVertex Last1;
+	FSlateVertex Last2;
+	TArray<FSlateVertex> TempPoints;
+	for (int i = 0; i < Points.Num() - 1; i++)
+	{
+		if (IsBroken && (i % 2 == 1))continue;
+		FSlateVertex LinePoints[4];
+		Points[i].Color = UseLineColor ? LineColor : GetColorByPos(Points[i].Position.X, Points[i].Position.Y);
+		Points[i].Color.A = 255;
+		if (pos == 1) {
+			GetRectPointLineByZhang(LinePoints, Points[i].Position, Points[i + 1].Position, LineWidth, TempPoints, pos, AALineWidth);
+			TempPoints.Empty();
+			TempPoints.Add((LinePoints[2]));
+			TempPoints.Add((LinePoints[3]));
+			LinePoints[0].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[0].Position.X, LinePoints[0].Position.Y);
+			LinePoints[1].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[1].Position.X, LinePoints[1].Position.Y);
+			LinePoints[2].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[2].Position.X, LinePoints[2].Position.Y);
+			LinePoints[3].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[3].Position.X, LinePoints[3].Position.Y);
+			LinePoints[0].Color.A = 0;
+			LinePoints[1].Color.A = 255;
+			LinePoints[2].Color.A = 255;
+			LinePoints[3].Color.A = 0;
+		}
+		else if (pos == 2)
+		{
+			GetRectPointLineByZhang(LinePoints, Points[i].Position, Points[i + 1].Position, LineWidth, TempPoints, pos, AALineWidth);
+			TempPoints.Empty();
+			TempPoints.Add((LinePoints[2]));
+			TempPoints.Add((LinePoints[3]));
+			LinePoints[0].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[0].Position.X, LinePoints[0].Position.Y);
+			LinePoints[1].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[1].Position.X, LinePoints[1].Position.Y);
+			LinePoints[2].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[2].Position.X, LinePoints[2].Position.Y);
+			LinePoints[3].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[3].Position.X, LinePoints[3].Position.Y);
+			LinePoints[0].Color.A = 255;
+			LinePoints[1].Color.A = 0;
+			LinePoints[2].Color.A = 0;
+			LinePoints[3].Color.A = 255;
+		}
+		else
+		{
+			GetRectPointLineByZhang(LinePoints, Points[i].Position, Points[i + 1].Position, LineWidth, TempPoints, pos, 0);
+			//TempPoints.Empty();
+			//TempPoints.Add((LinePoints[2]));
+			//TempPoints.Add((LinePoints[3]));
+			LinePoints[0].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[0].Position.X, LinePoints[0].Position.Y);
+			LinePoints[1].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[1].Position.X, LinePoints[1].Position.Y);
+			LinePoints[2].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[2].Position.X, LinePoints[2].Position.Y);
+			LinePoints[3].Color = UseLineColor ? LineColor : GetColorByPos(LinePoints[3].Position.X, LinePoints[3].Position.Y);
+			/*LinePoints[0].Color.A = 255;
+			LinePoints[1].Color.A = 255;
+			LinePoints[2].Color.A = 255;
+			LinePoints[3].Color.A = 255;*/
+		}
+		AddUIVertexQuad(LinePoints);
+		if (IsBroken)continue;
+		if (i == 0)
+		{
+			FirstPos1 = LinePoints[0];
+			FirstPos2 = LinePoints[1];
+			Last1 = LinePoints[2];
+			Last2 = LinePoints[3];
+		}
+		else
+		{
+			int count = VertexData.Num();
+			VertexData.Add(Last2);
+			VertexData.Add(Points[i]);
+			VertexData.Add(LinePoints[0]);
+			VertexData.Add(Last1);
+			VertexData.Add(Points[i]);
+			VertexData.Add(LinePoints[1]);
+			index.Add(count);
+			index.Add(count + 1);
+			index.Add(count + 2);
+			index.Add(count + 3);
+			index.Add(count + 4);
+			index.Add(count + 5);
+			Last1 = LinePoints[2];
+			Last2 = LinePoints[3];
+		}
+	}
+}
 TArray<FSlateVertex> ULineChart::PointList(TArray<FSlateVertex> points, int pointSize, float MaxY, float MinY)
 {
 	TArray<FSlateVertex> result;

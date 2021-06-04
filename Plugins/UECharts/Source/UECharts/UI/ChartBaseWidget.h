@@ -58,7 +58,10 @@ protected:
 	//圆形图的渐变
 	virtual FColor GetColorByRadius(float Outer, float Inner, float CurRadius);
 	void GetRectPoint(FSlateVertex verts[], FVector2D p1, FVector2D p2, float lineThickness);
+	void GetRectPointLine(FSlateVertex verts[], FVector2D p1, FVector2D p2, float lineThickness, TArray<FSlateVertex> TempPoints, int pos, float AAlineThickness);
 
+
+	void GetRectPointLineByZhang(FSlateVertex verts[], FVector2D p1, FVector2D p2, float lineThickness, TArray<FSlateVertex> TempPoints, int pos, float AAlineThickness);
 	void AddUIVertexQuad(FSlateVertex FourthVertext[]);
 	void SetDrawEffect(ESlateDrawEffect InDrawEffects = ESlateDrawEffect::None);
 	void Print_C(FString InString);

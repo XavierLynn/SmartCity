@@ -17,7 +17,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ChartConfig", Meta = (DisplayName = "线宽"))
 		float LineWidth = 2.f; 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ChartConfig", Meta = (DisplayName = "抗锯齿宽度"))
+		float AALineWidth = .5f; 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ChartConfig", Meta = (DisplayName = "单独配置线颜色"))
 		bool UseLineColor = false; 
 
@@ -65,7 +66,9 @@ protected:
 private:
 	TArray<FSlateVertex> PointList(TArray<FSlateVertex> points, int pointSize, float MaxY, float MinY);
 	FSlateVertex Interp(TArray<FSlateVertex>& pts, float t);
+	void ThreeLines(float x, float y, TArray<FSlateVertex>& vertex, TArray<SlateIndex>& index, TArray<FSlateVertex> Points, int pos);
 
+	void ZhangThreeLines(float x, float y, TArray<FSlateVertex>& vertex, TArray<SlateIndex>& index, TArray<FSlateVertex> Points, int pos);
 	void CheckPointXuXianLen(TArray<FSlateVertex>& NewPoint, FSlateVertex& LastPos, FSlateVertex NextPos);
 
 	void DrawPoint(float Ridius, FVector2D Origin);
